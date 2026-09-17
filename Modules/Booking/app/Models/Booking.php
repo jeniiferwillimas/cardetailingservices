@@ -2,21 +2,34 @@
 
 namespace Modules\Booking\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-// use Modules\Booking\Database\Factories\BookingFactory;
+use Illuminate\Database\Eloquent\Model;
+use Modules\Service\Models\Service;
 
 class Booking extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     */
-    protected $fillable = [];
+    protected $fillable = [
+        'customer_name',
+        'customer_email',
+        'customer_phone',
+        'vehicle_info',
+        'scheduled_for',
+        'status',
+        'notes',
+        'service_id',
+    ];
 
-    // protected static function newFactory(): BookingFactory
-    // {
-    //     // return BookingFactory::new();
-    // }
+    protected function casts(): array
+    {
+        return [
+            'scheduled_for' => 'datetime',
+        ];
+    }
+
+    public function service()
+    {
+        return $this->belongsTo(Service::class);
+    }
 }

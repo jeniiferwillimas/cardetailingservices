@@ -3,54 +3,94 @@
 namespace Modules\Service\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Modules\Service\Models\Service;
+use Modules\Service\Transformers\ServiceResource;
 
 class ServiceController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Public: list active services, optionally filtered by type (package|addon).
      */
-    public function index()
+    public function index(Request $request): JsonResponse
     {
-        return view('service::index');
+        $services = Service::query()
+            ->where('is_active', true)
+            ->when($request->query('type'), fn ($query, $type) => $query->where('type', $type))
+            ->orderBy('price')
+            ->get();
+
+        return response()->json([
+            'data' => ServiceResource::collection($services),
+        ]);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Public: show a single active service by slug.
      */
-    public function create()
+    public function show(string $slug): JsonResponse
     {
-        return view('service::create');
+        $service = Service::query()
+            ->where('is_active', true)
+            ->where('slug', $slug)
+            ->firstOrFail();
+
+        return response()->json([
+            'data' => new ServiceResource($service),
+        ]);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Admin: create a service.
      */
-    public function store(Request $request) {}
-
-    /**
-     * Show the specified resource.
-     */
-    public function show($id)
+    public function store(Request $request): JsonResponse
     {
-        return view('service::show');
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'slug' => ['required', 'string', 'max:255', 'unique:services,slug'],
+            'type' => ['required', Rule::in(['package', 'addon'])],
+            'description' => ['nullable', 'string'],
+            'price' => ['required', 'numeric', 'min:0'],
+            'duration_min' => ['required', 'integer', 'min:1'],
+            'image_url' => ['nullable', 'string', 'max:2048'],
+            'is_active' => ['sometimes', 'boolean'],
+        ]);
+
+        $service = Service::create($validated);
+
+        return response()->json(['data' => new ServiceResource($service)], 201);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Admin: update a service.
      */
-    public function edit($id)
+    public function update(Request $request, Service $service): JsonResponse
     {
-        return view('service::edit');
+        $validated = $request->validate([
+            'name' => ['sometimes', 'string', 'max:255'],
+            'slug' => ['sometimes', 'string', 'max:255', Rule::unique('services', 'slug')->ignore($service->id)],
+            'type' => ['sometimes', Rule::in(['package', 'addon'])],
+            'description' => ['nullable', 'string'],
+            'price' => ['sometimes', 'numeric', 'min:0'],
+            'duration_min' => ['sometimes', 'integer', 'min:1'],
+            'image_url' => ['nullable', 'string', 'max:2048'],
+            'is_active' => ['sometimes', 'boolean'],
+        ]);
+
+        $service->update($validated);
+
+        return response()->json(['data' => new ServiceResource($service)]);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Admin: delete a service.
      */
-    public function update(Request $request, $id) {}
+    public function destroy(Service $service): JsonResponse
+    {
+        $service->delete();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id) {}
+        return response()->json(status: 204);
+    }
 }

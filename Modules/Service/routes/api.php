@@ -3,6 +3,13 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Service\Http\Controllers\ServiceController;
 
-Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
-    Route::apiResource('services', ServiceController::class)->names('service');
+// Public: browsing services requires no authentication.
+Route::get('services', [ServiceController::class, 'index']);
+Route::get('services/{slug}', [ServiceController::class, 'show']);
+
+// Admin: managing services requires an authenticated admin token.
+Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
+    Route::post('services', [ServiceController::class, 'store']);
+    Route::patch('services/{service}', [ServiceController::class, 'update']);
+    Route::delete('services/{service}', [ServiceController::class, 'destroy']);
 });
