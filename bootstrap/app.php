@@ -14,6 +14,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Railway (and most PaaS hosts) terminate TLS at a reverse proxy and
+        // forward the original scheme via X-Forwarded-*. Trust it so
+        // Request::secure() reflects the real protocol for ForceHttps below.
+        $middleware->trustProxies(at: '*');
         $middleware->redirectGuestsTo(fn (Request $request) => $request->is('api/*') ? null : route('login'));
         // Baseline rate limit for every API route; sensitive routes
         // (login, checkout, IPN) layer stricter named limiters on top.

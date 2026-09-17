@@ -26,7 +26,22 @@
         "psr-4": {
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
-            "Database\\Seeders\\": "database/seeders/"
+            "Database\\Seeders\\": "database/seeders/",
+            "Modules\\Auth\\": "Modules/Auth/app/",
+            "Modules\\Auth\\Database\\Factories\\": "Modules/Auth/database/factories/",
+            "Modules\\Auth\\Database\\Seeders\\": "Modules/Auth/database/seeders/",
+            "Modules\\Booking\\": "Modules/Booking/app/",
+            "Modules\\Booking\\Database\\Factories\\": "Modules/Booking/database/factories/",
+            "Modules\\Booking\\Database\\Seeders\\": "Modules/Booking/database/seeders/",
+            "Modules\\Content\\": "Modules/Content/app/",
+            "Modules\\Content\\Database\\Factories\\": "Modules/Content/database/factories/",
+            "Modules\\Content\\Database\\Seeders\\": "Modules/Content/database/seeders/",
+            "Modules\\Payment\\": "Modules/Payment/app/",
+            "Modules\\Payment\\Database\\Factories\\": "Modules/Payment/database/factories/",
+            "Modules\\Payment\\Database\\Seeders\\": "Modules/Payment/database/seeders/",
+            "Modules\\Service\\": "Modules/Service/app/",
+            "Modules\\Service\\Database\\Factories\\": "Modules/Service/database/factories/",
+            "Modules\\Service\\Database\\Seeders\\": "Modules/Service/database/seeders/"
         }
     },
     "autoload-dev": {
