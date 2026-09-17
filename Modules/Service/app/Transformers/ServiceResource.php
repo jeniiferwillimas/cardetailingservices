@@ -22,6 +22,7 @@ class ServiceResource extends JsonResource
             'durationMin' => $this->duration_min,
             'imageUrl' => $this->image_url,
             'features' => $this->features,
+            'isActive' => $this->is_active,
         ];
     }
 }

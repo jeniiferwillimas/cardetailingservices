@@ -82,6 +82,41 @@ class ServiceController extends Controller
     }
 
     /**
+     * Admin: list all services, including inactive ones.
+     */
+    public function adminIndex(Request $request): JsonResponse
+    {
+        try {
+            $services = Service::query()
+                ->when($request->query('type'), fn ($query, $type) => $query->where('type', $type))
+                ->orderBy('type')
+                ->orderBy('price')
+                ->get();
+
+            $res = [
+                'success' => true,
+                'data' => ServiceResource::collection($services),
+            ];
+        } catch (Exception $e) {
+            $res = [
+                'success' => false,
+                'message' => $e->getMessage(),
+                'getFile' => $e->getFile(),
+                'getLine' => $e->getLine(),
+            ];
+        } catch (\Throwable $t) {
+            $res = [
+                'success' => false,
+                'message' => $t->getMessage(),
+                'getFile' => $t->getFile(),
+                'getLine' => $t->getLine(),
+            ];
+        }
+
+        return response()->json($res);
+    }
+
+    /**
      * Admin: create a service.
      */
     public function store(Request $request): JsonResponse
