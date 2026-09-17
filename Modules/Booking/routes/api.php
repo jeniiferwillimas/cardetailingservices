@@ -3,6 +3,11 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Booking\Http\Controllers\BookingController;
 
-Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
-    Route::apiResource('bookings', BookingController::class)->names('booking');
+// Public: submitting a booking requires no authentication.
+Route::post('bookings', [BookingController::class, 'store']);
+
+// Admin: managing bookings requires an authenticated admin token.
+Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
+    Route::get('bookings', [BookingController::class, 'index']);
+    Route::patch('bookings/{booking}/status', [BookingController::class, 'updateStatus']);
 });

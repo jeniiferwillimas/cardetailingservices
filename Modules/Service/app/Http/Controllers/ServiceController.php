@@ -3,6 +3,7 @@
 namespace Modules\Service\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -16,15 +17,34 @@ class ServiceController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $services = Service::query()
-            ->where('is_active', true)
-            ->when($request->query('type'), fn ($query, $type) => $query->where('type', $type))
-            ->orderBy('price')
-            ->get();
+        try {
+            $services = Service::query()
+                ->where('is_active', true)
+                ->when($request->query('type'), fn ($query, $type) => $query->where('type', $type))
+                ->orderBy('price')
+                ->get();
 
-        return response()->json([
-            'data' => ServiceResource::collection($services),
-        ]);
+            $res = [
+                'success' => true,
+                'data' => ServiceResource::collection($services),
+            ];
+        } catch (Exception $e) {
+            $res = [
+                'success' => false,
+                'message' => $e->getMessage(),
+                'getFile' => $e->getFile(),
+                'getLine' => $e->getLine(),
+            ];
+        } catch (\Throwable $t) {
+            $res = [
+                'success' => false,
+                'message' => $t->getMessage(),
+                'getFile' => $t->getFile(),
+                'getLine' => $t->getLine(),
+            ];
+        }
+
+        return response()->json($res);
     }
 
     /**
@@ -32,14 +52,33 @@ class ServiceController extends Controller
      */
     public function show(string $slug): JsonResponse
     {
-        $service = Service::query()
-            ->where('is_active', true)
-            ->where('slug', $slug)
-            ->firstOrFail();
+        try {
+            $service = Service::query()
+                ->where('is_active', true)
+                ->where('slug', $slug)
+                ->firstOrFail();
 
-        return response()->json([
-            'data' => new ServiceResource($service),
-        ]);
+            $res = [
+                'success' => true,
+                'data' => new ServiceResource($service),
+            ];
+        } catch (Exception $e) {
+            $res = [
+                'success' => false,
+                'message' => $e->getMessage(),
+                'getFile' => $e->getFile(),
+                'getLine' => $e->getLine(),
+            ];
+        } catch (\Throwable $t) {
+            $res = [
+                'success' => false,
+                'message' => $t->getMessage(),
+                'getFile' => $t->getFile(),
+                'getLine' => $t->getLine(),
+            ];
+        }
+
+        return response()->json($res);
     }
 
     /**
@@ -47,20 +86,41 @@ class ServiceController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'slug' => ['required', 'string', 'max:255', 'unique:services,slug'],
-            'type' => ['required', Rule::in(['package', 'addon'])],
-            'description' => ['nullable', 'string'],
-            'price' => ['required', 'numeric', 'min:0'],
-            'duration_min' => ['required', 'integer', 'min:1'],
-            'image_url' => ['nullable', 'string', 'max:2048'],
-            'is_active' => ['sometimes', 'boolean'],
-        ]);
+        try {
+            $validated = $request->validate([
+                'name' => ['required', 'string', 'max:255'],
+                'slug' => ['required', 'string', 'max:255', 'unique:services,slug'],
+                'type' => ['required', Rule::in(['package', 'addon'])],
+                'description' => ['nullable', 'string'],
+                'price' => ['required', 'numeric', 'min:0'],
+                'duration_min' => ['required', 'integer', 'min:1'],
+                'image_url' => ['nullable', 'string', 'max:2048'],
+                'is_active' => ['sometimes', 'boolean'],
+            ]);
 
-        $service = Service::create($validated);
+            $service = Service::create($validated);
 
-        return response()->json(['data' => new ServiceResource($service)], 201);
+            $res = [
+                'success' => true,
+                'data' => new ServiceResource($service),
+            ];
+        } catch (Exception $e) {
+            $res = [
+                'success' => false,
+                'message' => $e->getMessage(),
+                'getFile' => $e->getFile(),
+                'getLine' => $e->getLine(),
+            ];
+        } catch (\Throwable $t) {
+            $res = [
+                'success' => false,
+                'message' => $t->getMessage(),
+                'getFile' => $t->getFile(),
+                'getLine' => $t->getLine(),
+            ];
+        }
+
+        return response()->json($res);
     }
 
     /**
@@ -68,20 +128,41 @@ class ServiceController extends Controller
      */
     public function update(Request $request, Service $service): JsonResponse
     {
-        $validated = $request->validate([
-            'name' => ['sometimes', 'string', 'max:255'],
-            'slug' => ['sometimes', 'string', 'max:255', Rule::unique('services', 'slug')->ignore($service->id)],
-            'type' => ['sometimes', Rule::in(['package', 'addon'])],
-            'description' => ['nullable', 'string'],
-            'price' => ['sometimes', 'numeric', 'min:0'],
-            'duration_min' => ['sometimes', 'integer', 'min:1'],
-            'image_url' => ['nullable', 'string', 'max:2048'],
-            'is_active' => ['sometimes', 'boolean'],
-        ]);
+        try {
+            $validated = $request->validate([
+                'name' => ['sometimes', 'string', 'max:255'],
+                'slug' => ['sometimes', 'string', 'max:255', Rule::unique('services', 'slug')->ignore($service->id)],
+                'type' => ['sometimes', Rule::in(['package', 'addon'])],
+                'description' => ['nullable', 'string'],
+                'price' => ['sometimes', 'numeric', 'min:0'],
+                'duration_min' => ['sometimes', 'integer', 'min:1'],
+                'image_url' => ['nullable', 'string', 'max:2048'],
+                'is_active' => ['sometimes', 'boolean'],
+            ]);
 
-        $service->update($validated);
+            $service->update($validated);
 
-        return response()->json(['data' => new ServiceResource($service)]);
+            $res = [
+                'success' => true,
+                'data' => new ServiceResource($service),
+            ];
+        } catch (Exception $e) {
+            $res = [
+                'success' => false,
+                'message' => $e->getMessage(),
+                'getFile' => $e->getFile(),
+                'getLine' => $e->getLine(),
+            ];
+        } catch (\Throwable $t) {
+            $res = [
+                'success' => false,
+                'message' => $t->getMessage(),
+                'getFile' => $t->getFile(),
+                'getLine' => $t->getLine(),
+            ];
+        }
+
+        return response()->json($res);
     }
 
     /**
@@ -89,8 +170,29 @@ class ServiceController extends Controller
      */
     public function destroy(Service $service): JsonResponse
     {
-        $service->delete();
+        try {
+            $service->delete();
 
-        return response()->json(status: 204);
+            $res = [
+                'success' => true,
+                'data' => null,
+            ];
+        } catch (Exception $e) {
+            $res = [
+                'success' => false,
+                'message' => $e->getMessage(),
+                'getFile' => $e->getFile(),
+                'getLine' => $e->getLine(),
+            ];
+        } catch (\Throwable $t) {
+            $res = [
+                'success' => false,
+                'message' => $t->getMessage(),
+                'getFile' => $t->getFile(),
+                'getLine' => $t->getLine(),
+            ];
+        }
+
+        return response()->json($res);
     }
 }
