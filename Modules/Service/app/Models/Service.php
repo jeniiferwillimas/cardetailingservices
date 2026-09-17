@@ -18,6 +18,7 @@ class Service extends Model
         'price',
         'duration_min',
         'image_url',
+        'features',
         'is_active',
     ];
 
@@ -26,6 +27,7 @@ class Service extends Model
         return [
             'price' => 'decimal:2',
             'is_active' => 'boolean',
+            'features' => 'array',
         ];
     }
 

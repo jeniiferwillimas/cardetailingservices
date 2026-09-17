@@ -95,6 +95,8 @@ class ServiceController extends Controller
                 'price' => ['required', 'numeric', 'min:0'],
                 'duration_min' => ['required', 'integer', 'min:1'],
                 'image_url' => ['nullable', 'string', 'max:2048'],
+                'features' => ['nullable', 'array'],
+                'features.*' => ['string'],
                 'is_active' => ['sometimes', 'boolean'],
             ]);
 
@@ -137,6 +139,8 @@ class ServiceController extends Controller
                 'price' => ['sometimes', 'numeric', 'min:0'],
                 'duration_min' => ['sometimes', 'integer', 'min:1'],
                 'image_url' => ['nullable', 'string', 'max:2048'],
+                'features' => ['nullable', 'array'],
+                'features.*' => ['string'],
                 'is_active' => ['sometimes', 'boolean'],
             ]);
 

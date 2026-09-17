@@ -21,6 +21,7 @@ class ServiceResource extends JsonResource
             'price' => (float) $this->price,
             'durationMin' => $this->duration_min,
             'imageUrl' => $this->image_url,
+            'features' => $this->features,
         ];
     }
 }

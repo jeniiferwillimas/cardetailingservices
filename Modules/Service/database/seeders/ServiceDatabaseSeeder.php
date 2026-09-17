@@ -20,14 +20,24 @@ class ServiceDatabaseSeeder extends Seeder
                 'price' => 199.99,
                 'duration_min' => 90,
                 'image_url' => 'https://images.unsplash.com/photo-1601362840469-51e4d8d58785?q=80&w=1200&auto=format&fit=crop',
+                'features' => [
+                    'Interior: Cup holders, side panels, wipe down all surfaces, vacuum seats and carpets.',
+                    'Interior: Leather cleaning and UV protection for vinyl surfaces.',
+                    'Interior: Streak-free interior glass cleaning and door jam detail.',
+                    'Interior: Odor removal to freshen and refresh the cabin.',
+                ],
             ],
             [
                 'slug' => 'ultimate-package',
                 'name' => 'Ultimate Package',
-                'description' => 'The Ultimate Package delivers a comprehensive deep clean and protection for both the interior and exterior of your vehicle. Our team hand washes, clays, and waxes the exterior while thoroughly vacuuming, shampooing, and conditioning every interior surface, leaving your car looking and feeling brand new inside and out.',
-                'price' => 249.99,
+                'description' => "This comprehensive package delivers a deep clean and protection for both your car's interior and exterior. Enjoy a sparkling exterior with a pressure wash, hand wax, and UV-protected tire dressing. Inside, we'll tackle dirt and grime in every nook and cranny, including leather cleaning and streak-free window cleaning.",
+                'price' => 199.99,
                 'duration_min' => 120,
                 'image_url' => 'https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?q=80&w=1200&auto=format&fit=crop',
+                'features' => [
+                    'Exterior: Pressure wash, PH-neutral foam bath, full wheel and undercarriage detail, towel dry (no shammy usage), hand wax, streak-free window clean, water-based UV protecting tire dressing (silicone free), top-up windshield wiper fluid, check tire pressure.',
+                    'Interior: Cup holders, side panels, wipe down all surfaces, non scented brush foam detail, leather cleaning, UV protection for vinyl surfaces, vacuum seats, streak free interior glass cleaning, door jam detail.',
+                ],
             ],
             [
                 'slug' => 'super-shine-package',
@@ -36,6 +46,11 @@ class ServiceDatabaseSeeder extends Seeder
                 'price' => 299.99,
                 'duration_min' => 150,
                 'image_url' => 'https://images.unsplash.com/photo-1600661653561-629509216228?q=80&w=1200&auto=format&fit=crop',
+                'features' => [
+                    'Exterior: Premium hand wash and PH-neutral foam bath.',
+                    'Exterior: Clay bar treatment to strip embedded contaminants.',
+                    'Exterior: Long-lasting hand wax finish for a glossy, protected shine.',
+                ],
             ],
             [
                 'slug' => 'showroom-detail',
@@ -44,6 +59,11 @@ class ServiceDatabaseSeeder extends Seeder
                 'price' => 399.99,
                 'duration_min' => 180,
                 'image_url' => 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=1200&auto=format&fit=crop',
+                'features' => [
+                    'Exterior: Full paint correction and premium showroom-finish wax.',
+                    'Interior: Deep clean of every interior surface, carpets, and upholstery.',
+                    'Interior: Leather conditioning and streak-free glass cleaning.',
+                ],
             ],
             [
                 'slug' => 'ceramic-package',
@@ -52,6 +72,11 @@ class ServiceDatabaseSeeder extends Seeder
                 'price' => 999.99,
                 'duration_min' => 240,
                 'image_url' => 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?q=80&w=1200&auto=format&fit=crop',
+                'features' => [
+                    'Exterior: Full paint decontamination and surface prep before coating.',
+                    'Exterior: Professional-grade ceramic coating application.',
+                    'Exterior: 5-year protection against UV damage, oxidation, and minor scratches.',
+                ],
             ],
         ];
 
