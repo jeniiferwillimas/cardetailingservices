@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\ForceHttps;
+use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -16,6 +18,8 @@ return Application::configure(basePath: dirname(__DIR__))
         // Baseline rate limit for every API route; sensitive routes
         // (login, checkout, IPN) layer stricter named limiters on top.
         $middleware->throttleApi();
+        $middleware->prepend(ForceHttps::class);
+        $middleware->append(SecurityHeaders::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
