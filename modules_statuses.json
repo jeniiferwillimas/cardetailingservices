@@ -1,5 +1,6 @@
 {
     "Auth": true,
     "Service": true,
-    "Booking": true
+    "Booking": true,
+    "Content": true
 }
