@@ -3,5 +3,6 @@
     "Service": true,
     "Booking": true,
     "Content": true,
-    "Payment": true
+    "Payment": true,
+    "Support": true
 }

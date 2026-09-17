@@ -8,6 +8,7 @@
     "require": {
         "php": "^8.3",
         "laravel/framework": "^13.17",
+        "laravel/reverb": "^1.11",
         "laravel/sanctum": "^4.3",
         "laravel/tinker": "^3.0",
         "nwidart/laravel-modules": "^13.0"
@@ -41,7 +42,10 @@
             "Modules\\Payment\\Database\\Seeders\\": "Modules/Payment/database/seeders/",
             "Modules\\Service\\": "Modules/Service/app/",
             "Modules\\Service\\Database\\Factories\\": "Modules/Service/database/factories/",
-            "Modules\\Service\\Database\\Seeders\\": "Modules/Service/database/seeders/"
+            "Modules\\Service\\Database\\Seeders\\": "Modules/Service/database/seeders/",
+            "Modules\\Support\\": "Modules/Support/app/",
+            "Modules\\Support\\Database\\Factories\\": "Modules/Support/database/factories/",
+            "Modules\\Support\\Database\\Seeders\\": "Modules/Support/database/seeders/"
         }
     },
     "autoload-dev": {
