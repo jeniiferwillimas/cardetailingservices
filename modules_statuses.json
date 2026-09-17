@@ -2,5 +2,6 @@
     "Auth": true,
     "Service": true,
     "Booking": true,
-    "Content": true
+    "Content": true,
+    "Payment": true
 }

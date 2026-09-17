@@ -19,6 +19,8 @@ class Booking extends Model
         'status',
         'notes',
         'service_id',
+        'order_reference',
+        'payment_status',
     ];
 
     protected function casts(): array
