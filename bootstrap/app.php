@@ -22,7 +22,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // Baseline rate limit for every API route; sensitive routes
         // (login, checkout, IPN) layer stricter named limiters on top.
         $middleware->throttleApi();
-        $middleware->prepend(ForceHttps::class);
+        // append (not prepend): explicit prepends run before Laravel's own
+        // global middleware list, which is where TrustProxies lives — if
+        // ForceHttps ran first, Request::secure() would still reflect the
+        // untrusted scheme and reject every request behind Railway's proxy.
+        $middleware->append(ForceHttps::class);
         $middleware->append(SecurityHeaders::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
