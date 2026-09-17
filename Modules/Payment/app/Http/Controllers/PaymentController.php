@@ -3,11 +3,13 @@
 namespace Modules\Payment\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Support\UsStates;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Modules\Booking\Models\Booking;
 use Modules\Payment\Models\Payment;
 use Modules\Payment\Services\NowPaymentsClient;
@@ -27,7 +29,9 @@ class PaymentController extends Controller
             $validated = $request->validate([
                 'customer_name' => ['required', 'string', 'max:255'],
                 'customer_email' => ['required', 'email'],
-                'customer_phone' => ['required', 'string', 'max:50'],
+                'customer_phone' => ['nullable', 'string', 'max:50'],
+                'address' => ['required', 'string', 'max:255'],
+                'state' => ['required', 'string', Rule::in(UsStates::codes())],
                 'vehicle_info' => ['nullable', 'string', 'max:255'],
                 'scheduled_for' => ['required', 'date'],
                 'notes' => ['nullable', 'string'],
@@ -71,7 +75,9 @@ class PaymentController extends Controller
                         Booking::create([
                             'customer_name' => $validated['customer_name'],
                             'customer_email' => $validated['customer_email'],
-                            'customer_phone' => $validated['customer_phone'],
+                            'customer_phone' => $validated['customer_phone'] ?? null,
+                            'address' => $validated['address'],
+                            'state' => $validated['state'],
                             'vehicle_info' => $validated['vehicle_info'] ?? null,
                             'scheduled_for' => $validated['scheduled_for'],
                             'notes' => $validated['notes'] ?? null,
