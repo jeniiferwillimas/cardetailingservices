@@ -87,6 +87,7 @@ class ServiceDatabaseSeeder extends Seeder
                 'description' => "Restore your engine's power and performance with our deep engine bay cleaning.",
                 'price' => 100,
                 'duration_min' => 30,
+                'image_url' => 'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?q=80&w=1200&auto=format&fit=crop',
             ],
             [
                 'slug' => 'headlight-restoration',
@@ -94,6 +95,7 @@ class ServiceDatabaseSeeder extends Seeder
                 'description' => 'Dull and cloudy headlights can be a safety hazard — see clearly, drive safely.',
                 'price' => 150,
                 'duration_min' => 45,
+                'image_url' => 'https://images.unsplash.com/photo-1607860108855-64acf2078ed9?q=80&w=1200&auto=format&fit=crop',
             ],
             [
                 'slug' => 'ozone-treatment-odor-removal',
@@ -101,6 +103,7 @@ class ServiceDatabaseSeeder extends Seeder
                 'description' => 'Eliminate unwanted odors and banish stubborn smells like smoke and pet odor.',
                 'price' => 100,
                 'duration_min' => 30,
+                'image_url' => 'https://images.unsplash.com/photo-1616455579100-2ceaa4eb2d37?q=80&w=1200&auto=format&fit=crop',
             ],
             [
                 'slug' => 'excessive-pet-hair-extraction',
@@ -108,6 +111,7 @@ class ServiceDatabaseSeeder extends Seeder
                 'description' => 'Struggling with pet hair? Our specialized cleaning gets a pet-free interior.',
                 'price' => 150,
                 'duration_min' => 45,
+                'image_url' => 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1200&auto=format&fit=crop',
             ],
             [
                 'slug' => 'steam-interior-cleaning',
@@ -115,6 +119,7 @@ class ServiceDatabaseSeeder extends Seeder
                 'description' => "Deep clean your car's interior — our steam cleaning process penetrates deep.",
                 'price' => 100,
                 'duration_min' => 45,
+                'image_url' => 'https://images.unsplash.com/photo-1489824904134-891ab64532f1?q=80&w=1200&auto=format&fit=crop',
             ],
             [
                 'slug' => 'pest-control-fumigation',
@@ -122,6 +127,7 @@ class ServiceDatabaseSeeder extends Seeder
                 'description' => 'Protect your vehicle from pests and prevent costly damage and health risks.',
                 'price' => 400,
                 'duration_min' => 60,
+                'image_url' => 'https://images.unsplash.com/photo-1518987048-93e29699e79a?q=80&w=1200&auto=format&fit=crop',
             ],
         ];
 
