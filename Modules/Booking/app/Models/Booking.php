@@ -25,12 +25,12 @@ class Booking extends Model
         'payment_status',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'scheduled_for' => 'datetime',
-        ];
-    }
+    // scheduled_for is deliberately NOT cast to 'datetime'. Customers pick a
+    // wall-clock time in their own state (no timezone attached), and we want
+    // that exact value stored and displayed as entered — casting to
+    // Carbon/datetime would apply the app timezone and serialize with a
+    // trailing 'Z', causing browsers to reinterpret and shift it when
+    // displayed to an admin in a different timezone.
 
     public function service()
     {
