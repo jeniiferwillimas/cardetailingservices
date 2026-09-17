@@ -12,47 +12,6 @@ use Modules\Booking\Models\Booking;
 class BookingController extends Controller
 {
     /**
-     * Public: create a booking. No authentication required.
-     */
-    public function store(Request $request): JsonResponse
-    {
-        try {
-            $validated = $request->validate([
-                'customer_name' => ['required', 'string', 'max:255'],
-                'customer_email' => ['required', 'email'],
-                'customer_phone' => ['required', 'string', 'max:50'],
-                'vehicle_info' => ['nullable', 'string', 'max:255'],
-                'scheduled_for' => ['required', 'date'],
-                'notes' => ['nullable', 'string'],
-                'service_id' => ['required', 'integer', Rule::exists('services', 'id')->where('is_active', true)],
-            ]);
-
-            $booking = Booking::create($validated);
-
-            $res = [
-                'success' => true,
-                'data' => $booking->load('service'),
-            ];
-        } catch (Exception $e) {
-            $res = [
-                'success' => false,
-                'message' => $e->getMessage(),
-                'getFile' => $e->getFile(),
-                'getLine' => $e->getLine(),
-            ];
-        } catch (\Throwable $t) {
-            $res = [
-                'success' => false,
-                'message' => $t->getMessage(),
-                'getFile' => $t->getFile(),
-                'getLine' => $t->getLine(),
-            ];
-        }
-
-        return response()->json($res);
-    }
-
-    /**
      * Admin: list bookings, optionally filtered by status.
      */
     public function index(Request $request): JsonResponse

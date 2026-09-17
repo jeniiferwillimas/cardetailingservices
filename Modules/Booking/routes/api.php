@@ -3,8 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Booking\Http\Controllers\BookingController;
 
-// Public: submitting a booking requires no authentication.
-Route::post('bookings', [BookingController::class, 'store']);
+// Bookings are only ever created via checkout (Modules/Payment) so that
+// every booking is tied to a payment — there is deliberately no public
+// "create a booking directly" route here.
 
 // Admin: managing bookings requires an authenticated admin token.
 Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
