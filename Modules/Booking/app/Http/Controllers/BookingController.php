@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Modules\Booking\Models\Booking;
+use Modules\Booking\Transformers\BookingResource;
 
 class BookingController extends Controller
 {
@@ -25,7 +26,7 @@ class BookingController extends Controller
 
             $res = [
                 'success' => true,
-                'data' => $bookings,
+                'data' => BookingResource::collection($bookings),
             ];
         } catch (Exception $e) {
             $res = [
@@ -60,7 +61,7 @@ class BookingController extends Controller
 
             $res = [
                 'success' => true,
-                'data' => $booking,
+                'data' => new BookingResource($booking->load('service')),
             ];
         } catch (Exception $e) {
             $res = [
