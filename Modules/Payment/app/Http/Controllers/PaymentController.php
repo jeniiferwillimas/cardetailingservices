@@ -5,6 +5,7 @@ namespace Modules\Payment\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Support\UsStates;
 use Exception;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -38,7 +39,26 @@ class PaymentController extends Controller
                 'items' => ['required', 'array', 'min:1'],
                 'items.*.service_id' => ['required', 'integer', 'exists:services,id'],
                 'items.*.quantity' => ['required', 'integer', 'min:1'],
+                'idempotency_key' => ['nullable', 'string', 'max:100'],
             ]);
+
+            // A retried or double-clicked checkout should return the original
+            // order instead of creating duplicate bookings/invoices.
+            $idempotencyKey = $validated['idempotency_key'] ?? null;
+            if ($idempotencyKey) {
+                $existing = Payment::where('idempotency_key', $idempotencyKey)->first();
+                if ($existing) {
+                    $res = [
+                        'success' => true,
+                        'data' => [
+                            'orderReference' => $existing->order_reference,
+                            'invoiceUrl' => $existing->raw_response['invoice_url'] ?? null,
+                        ],
+                    ];
+
+                    return response()->json($res);
+                }
+            }
 
             if (! $this->nowPayments->isConfigured()) {
                 $res = [
@@ -68,33 +88,56 @@ class PaymentController extends Controller
 
             $orderReference = (string) Str::uuid();
 
-            DB::transaction(function () use ($validated, $services, $orderReference, $total) {
-                foreach ($validated['items'] as $item) {
-                    $service = $services->get($item['service_id']);
-                    for ($i = 0; $i < $item['quantity']; $i++) {
-                        Booking::create([
-                            'customer_name' => $validated['customer_name'],
-                            'customer_email' => $validated['customer_email'],
-                            'customer_phone' => $validated['customer_phone'] ?? null,
-                            'address' => $validated['address'],
-                            'state' => $validated['state'],
-                            'vehicle_info' => $validated['vehicle_info'] ?? null,
-                            'scheduled_for' => $validated['scheduled_for'],
-                            'notes' => $validated['notes'] ?? null,
-                            'service_id' => $service->id,
-                            'order_reference' => $orderReference,
-                            'payment_status' => 'unpaid',
-                        ]);
+            try {
+                DB::transaction(function () use ($validated, $services, $orderReference, $total, $idempotencyKey) {
+                    foreach ($validated['items'] as $item) {
+                        $service = $services->get($item['service_id']);
+                        for ($i = 0; $i < $item['quantity']; $i++) {
+                            Booking::create([
+                                'customer_name' => $validated['customer_name'],
+                                'customer_email' => $validated['customer_email'],
+                                'customer_phone' => $validated['customer_phone'] ?? null,
+                                'address' => $validated['address'],
+                                'state' => $validated['state'],
+                                'vehicle_info' => $validated['vehicle_info'] ?? null,
+                                'scheduled_for' => $validated['scheduled_for'],
+                                'notes' => $validated['notes'] ?? null,
+                                'service_id' => $service->id,
+                                'order_reference' => $orderReference,
+                                'payment_status' => 'unpaid',
+                            ]);
+                        }
+                    }
+
+                    Payment::create([
+                        'order_reference' => $orderReference,
+                        'idempotency_key' => $idempotencyKey,
+                        'amount' => $total,
+                        'currency' => config('nowpayments.price_currency'),
+                        'status' => 'pending',
+                    ]);
+                });
+            } catch (QueryException $e) {
+                // Unique constraint on idempotency_key: a concurrent request
+                // (e.g. a double-click) with the same key won the race and
+                // already created the order — return its result instead of
+                // erroring or creating a duplicate.
+                if ($idempotencyKey && str_contains($e->getMessage(), 'idempotency_key')) {
+                    $existing = Payment::where('idempotency_key', $idempotencyKey)->first();
+                    if ($existing) {
+                        $res = [
+                            'success' => true,
+                            'data' => [
+                                'orderReference' => $existing->order_reference,
+                                'invoiceUrl' => $existing->raw_response['invoice_url'] ?? null,
+                            ],
+                        ];
+
+                        return response()->json($res);
                     }
                 }
-
-                Payment::create([
-                    'order_reference' => $orderReference,
-                    'amount' => $total,
-                    'currency' => config('nowpayments.price_currency'),
-                    'status' => 'pending',
-                ]);
-            });
+                throw $e;
+            }
 
             // Outside the DB transaction: an external HTTP call shouldn't hold
             // a transaction open. If it fails, undo the records we just made.

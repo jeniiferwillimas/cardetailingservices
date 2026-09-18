@@ -12,6 +12,7 @@ class Payment extends Model
 
     protected $fillable = [
         'order_reference',
+        'idempotency_key',
         'amount',
         'currency',
         'status',
