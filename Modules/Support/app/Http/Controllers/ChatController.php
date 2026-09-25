@@ -189,40 +189,6 @@ class ChatController extends Controller
     }
 
     /**
-     * Public: customer deletes their own message.
-     */
-    public function deleteMessage(string $uuid, Message $message): JsonResponse
-    {
-        try {
-            if ($message->conversation->uuid !== $uuid || $message->sender_type !== 'customer') {
-                throw new NotFoundHttpException;
-            }
-
-            $message->delete();
-
-            $this->safeBroadcast(new MessageDeleted($uuid, $message->id));
-
-            $res = ['success' => true];
-        } catch (Exception $e) {
-            $res = [
-                'success' => false,
-                'message' => $e->getMessage(),
-                'getFile' => $e->getFile(),
-                'getLine' => $e->getLine(),
-            ];
-        } catch (\Throwable $t) {
-            $res = [
-                'success' => false,
-                'message' => $t->getMessage(),
-                'getFile' => $t->getFile(),
-                'getLine' => $t->getLine(),
-            ];
-        }
-
-        return response()->json($res);
-    }
-
-    /**
      * Admin: list conversations, most recently active first.
      */
     public function adminIndex(): JsonResponse
@@ -433,6 +399,45 @@ class ChatController extends Controller
             $this->safeBroadcast(new MessageDeleted($uuid, $messageId));
 
             $res = ['success' => true];
+        } catch (Exception $e) {
+            $res = [
+                'success' => false,
+                'message' => $e->getMessage(),
+                'getFile' => $e->getFile(),
+                'getLine' => $e->getLine(),
+            ];
+        } catch (\Throwable $t) {
+            $res = [
+                'success' => false,
+                'message' => $t->getMessage(),
+                'getFile' => $t->getFile(),
+                'getLine' => $t->getLine(),
+            ];
+        }
+
+        return response()->json($res);
+    }
+
+    /**
+     * Admin: edit a conversation's customer details.
+     */
+    public function adminUpdateConversation(Request $request, Conversation $conversation): JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'customerName' => ['nullable', 'string', 'max:255'],
+                'customerEmail' => ['nullable', 'email', 'max:255'],
+            ]);
+
+            $conversation->update([
+                'customer_name' => $validated['customerName'] ?? null,
+                'customer_email' => $validated['customerEmail'] ?? null,
+            ]);
+
+            $res = [
+                'success' => true,
+                'data' => new ConversationResource($conversation),
+            ];
         } catch (Exception $e) {
             $res = [
                 'success' => false,
