@@ -451,4 +451,32 @@ class ChatController extends Controller
 
         return response()->json($res);
     }
+
+    /**
+     * Admin: delete an entire conversation (its messages cascade-delete).
+     */
+    public function adminDestroyConversation(Conversation $conversation): JsonResponse
+    {
+        try {
+            $conversation->delete();
+
+            $res = ['success' => true];
+        } catch (Exception $e) {
+            $res = [
+                'success' => false,
+                'message' => $e->getMessage(),
+                'getFile' => $e->getFile(),
+                'getLine' => $e->getLine(),
+            ];
+        } catch (\Throwable $t) {
+            $res = [
+                'success' => false,
+                'message' => $t->getMessage(),
+                'getFile' => $t->getFile(),
+                'getLine' => $t->getLine(),
+            ];
+        }
+
+        return response()->json($res);
+    }
 }

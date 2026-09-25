@@ -18,4 +18,5 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
     Route::patch('chat/conversations/{conversation}/messages/{message}', [ChatController::class, 'adminUpdateMessage']);
     Route::delete('chat/conversations/{conversation}/messages/{message}', [ChatController::class, 'adminDeleteMessage']);
     Route::post('chat/conversations/{conversation}/read', [ChatController::class, 'adminMarkRead']);
+    Route::delete('chat/conversations/{conversation}', [ChatController::class, 'adminDestroyConversation']);
 });
