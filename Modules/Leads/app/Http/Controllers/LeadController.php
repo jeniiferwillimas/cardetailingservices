@@ -52,12 +52,20 @@ class LeadController extends Controller
     /**
      * Admin: list captured leads, most recent first.
      */
-    public function adminIndex(): JsonResponse
+    public function adminIndex(Request $request): JsonResponse
     {
         try {
+            $leads = Lead::orderByDesc('created_at')->paginate((int) $request->query('per_page', 20));
+
             $res = [
                 'success' => true,
-                'data' => LeadResource::collection(Lead::orderByDesc('created_at')->get()),
+                'data' => LeadResource::collection($leads->items()),
+                'meta' => [
+                    'currentPage' => $leads->currentPage(),
+                    'lastPage' => $leads->lastPage(),
+                    'perPage' => $leads->perPage(),
+                    'total' => $leads->total(),
+                ],
             ];
         } catch (Exception $e) {
             $res = [

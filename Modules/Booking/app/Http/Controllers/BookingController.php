@@ -107,11 +107,17 @@ class BookingController extends Controller
                 ->with('service')
                 ->when($request->query('status'), fn ($query, $status) => $query->where('status', $status))
                 ->orderBy('scheduled_for')
-                ->get();
+                ->paginate((int) $request->query('per_page', 20));
 
             $res = [
                 'success' => true,
-                'data' => BookingResource::collection($bookings),
+                'data' => BookingResource::collection($bookings->items()),
+                'meta' => [
+                    'currentPage' => $bookings->currentPage(),
+                    'lastPage' => $bookings->lastPage(),
+                    'perPage' => $bookings->perPage(),
+                    'total' => $bookings->total(),
+                ],
             ];
         } catch (Exception $e) {
             $res = [
