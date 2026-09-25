@@ -15,6 +15,7 @@ class MessageResource extends JsonResource
             'senderType' => $this->sender_type,
             'body' => $this->body,
             'readAt' => $this->read_at,
+            'editedAt' => $this->edited_at,
             'createdAt' => $this->created_at,
         ];
     }

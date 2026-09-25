@@ -4,16 +4,36 @@ namespace Modules\Support\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Exception;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Modules\Support\Events\MessageDeleted;
 use Modules\Support\Events\MessageSent;
+use Modules\Support\Events\MessageUpdated;
 use Modules\Support\Models\Conversation;
 use Modules\Support\Models\Message;
 use Modules\Support\Transformers\ConversationResource;
 use Modules\Support\Transformers\MessageResource;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ChatController extends Controller
 {
+    /**
+     * Live delivery is a nice-to-have on top of a working chat — if Reverb
+     * is unreachable or misconfigured, that shouldn't fail the request that
+     * already persisted the underlying change (send/edit/delete).
+     */
+    private function safeBroadcast(ShouldBroadcast|ShouldBroadcastNow $event): void
+    {
+        try {
+            broadcast($event);
+        } catch (\Throwable $t) {
+            Log::warning('Chat broadcast failed: '.$t->getMessage());
+        }
+    }
+
     /**
      * Public: start a new conversation.
      */
@@ -102,12 +122,87 @@ class ChatController extends Controller
             ]);
             $conversation->update(['last_message_at' => now()]);
 
-            broadcast(new MessageSent($message));
+            $this->safeBroadcast(new MessageSent($message));
 
             $res = [
                 'success' => true,
                 'data' => new MessageResource($message),
             ];
+        } catch (Exception $e) {
+            $res = [
+                'success' => false,
+                'message' => $e->getMessage(),
+                'getFile' => $e->getFile(),
+                'getLine' => $e->getLine(),
+            ];
+        } catch (\Throwable $t) {
+            $res = [
+                'success' => false,
+                'message' => $t->getMessage(),
+                'getFile' => $t->getFile(),
+                'getLine' => $t->getLine(),
+            ];
+        }
+
+        return response()->json($res);
+    }
+
+    /**
+     * Public: customer edits their own message.
+     */
+    public function updateMessage(Request $request, string $uuid, Message $message): JsonResponse
+    {
+        try {
+            if ($message->conversation->uuid !== $uuid || $message->sender_type !== 'customer') {
+                throw new NotFoundHttpException;
+            }
+
+            $validated = $request->validate([
+                'body' => ['required', 'string', 'max:4000'],
+            ]);
+
+            $message->update(['body' => $validated['body'], 'edited_at' => now()]);
+
+            $this->safeBroadcast(new MessageUpdated($message));
+
+            $res = [
+                'success' => true,
+                'data' => new MessageResource($message),
+            ];
+        } catch (Exception $e) {
+            $res = [
+                'success' => false,
+                'message' => $e->getMessage(),
+                'getFile' => $e->getFile(),
+                'getLine' => $e->getLine(),
+            ];
+        } catch (\Throwable $t) {
+            $res = [
+                'success' => false,
+                'message' => $t->getMessage(),
+                'getFile' => $t->getFile(),
+                'getLine' => $t->getLine(),
+            ];
+        }
+
+        return response()->json($res);
+    }
+
+    /**
+     * Public: customer deletes their own message.
+     */
+    public function deleteMessage(string $uuid, Message $message): JsonResponse
+    {
+        try {
+            if ($message->conversation->uuid !== $uuid || $message->sender_type !== 'customer') {
+                throw new NotFoundHttpException;
+            }
+
+            $message->delete();
+
+            $this->safeBroadcast(new MessageDeleted($uuid, $message->id));
+
+            $res = ['success' => true];
         } catch (Exception $e) {
             $res = [
                 'success' => false,
@@ -247,12 +342,97 @@ class ChatController extends Controller
             ]);
             $conversation->update(['last_message_at' => now()]);
 
-            broadcast(new MessageSent($message));
+            $this->safeBroadcast(new MessageSent($message));
 
             $res = [
                 'success' => true,
                 'data' => new MessageResource($message),
             ];
+        } catch (Exception $e) {
+            $res = [
+                'success' => false,
+                'message' => $e->getMessage(),
+                'getFile' => $e->getFile(),
+                'getLine' => $e->getLine(),
+            ];
+        } catch (\Throwable $t) {
+            $res = [
+                'success' => false,
+                'message' => $t->getMessage(),
+                'getFile' => $t->getFile(),
+                'getLine' => $t->getLine(),
+            ];
+        }
+
+        return response()->json($res);
+    }
+
+    /**
+     * Admin: edit their own reply.
+     */
+    public function adminUpdateMessage(Request $request, Conversation $conversation, Message $message): JsonResponse
+    {
+        try {
+            if (
+                $message->conversation_id !== $conversation->id
+                || $message->sender_type !== 'admin'
+                || $message->admin_id !== $request->user()->id
+            ) {
+                throw new NotFoundHttpException;
+            }
+
+            $validated = $request->validate([
+                'body' => ['required', 'string', 'max:4000'],
+            ]);
+
+            $message->update(['body' => $validated['body'], 'edited_at' => now()]);
+
+            $this->safeBroadcast(new MessageUpdated($message));
+
+            $res = [
+                'success' => true,
+                'data' => new MessageResource($message),
+            ];
+        } catch (Exception $e) {
+            $res = [
+                'success' => false,
+                'message' => $e->getMessage(),
+                'getFile' => $e->getFile(),
+                'getLine' => $e->getLine(),
+            ];
+        } catch (\Throwable $t) {
+            $res = [
+                'success' => false,
+                'message' => $t->getMessage(),
+                'getFile' => $t->getFile(),
+                'getLine' => $t->getLine(),
+            ];
+        }
+
+        return response()->json($res);
+    }
+
+    /**
+     * Admin: delete their own reply.
+     */
+    public function adminDeleteMessage(Request $request, Conversation $conversation, Message $message): JsonResponse
+    {
+        try {
+            if (
+                $message->conversation_id !== $conversation->id
+                || $message->sender_type !== 'admin'
+                || $message->admin_id !== $request->user()->id
+            ) {
+                throw new NotFoundHttpException;
+            }
+
+            $uuid = $conversation->uuid;
+            $messageId = $message->id;
+            $message->delete();
+
+            $this->safeBroadcast(new MessageDeleted($uuid, $messageId));
+
+            $res = ['success' => true];
         } catch (Exception $e) {
             $res = [
                 'success' => false,
