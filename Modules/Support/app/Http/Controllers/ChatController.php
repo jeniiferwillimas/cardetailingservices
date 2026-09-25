@@ -137,6 +137,7 @@ class ChatController extends Controller
                 ->withCount(['messages as unread_count' => function ($query) {
                     $query->where('sender_type', 'customer')->whereNull('read_at');
                 }])
+                ->with('latestMessage')
                 ->orderByRaw('last_message_at IS NULL, last_message_at DESC')
                 ->get();
 
@@ -178,6 +179,38 @@ class ChatController extends Controller
                 'success' => true,
                 'data' => MessageResource::collection($conversation->messages()->orderBy('created_at')->get()),
             ];
+        } catch (Exception $e) {
+            $res = [
+                'success' => false,
+                'message' => $e->getMessage(),
+                'getFile' => $e->getFile(),
+                'getLine' => $e->getLine(),
+            ];
+        } catch (\Throwable $t) {
+            $res = [
+                'success' => false,
+                'message' => $t->getMessage(),
+                'getFile' => $t->getFile(),
+                'getLine' => $t->getLine(),
+            ];
+        }
+
+        return response()->json($res);
+    }
+
+    /**
+     * Admin: mark a conversation's customer messages as read without
+     * loading the full thread (for triaging the list quickly).
+     */
+    public function adminMarkRead(Conversation $conversation): JsonResponse
+    {
+        try {
+            $conversation->messages()
+                ->where('sender_type', 'customer')
+                ->whereNull('read_at')
+                ->update(['read_at' => now()]);
+
+            $res = ['success' => true];
         } catch (Exception $e) {
             $res = [
                 'success' => false,

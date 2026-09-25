@@ -20,6 +20,10 @@ class ConversationResource extends JsonResource
                 $this->relationLoaded('messages') || isset($this->unread_count),
                 fn () => $this->unread_count ?? $this->messages->whereNull('read_at')->where('sender_type', 'customer')->count(),
             ),
+            // True when the customer's last message hasn't had a staff reply yet.
+            'needsReply' => $this->relationLoaded('latestMessage')
+                ? $this->latestMessage?->sender_type === 'customer'
+                : null,
             'createdAt' => $this->created_at,
         ];
     }

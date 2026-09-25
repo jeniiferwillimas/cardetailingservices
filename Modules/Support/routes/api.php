@@ -13,4 +13,5 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
     Route::get('chat/conversations', [ChatController::class, 'adminIndex']);
     Route::get('chat/conversations/{conversation}/messages', [ChatController::class, 'adminMessages']);
     Route::post('chat/conversations/{conversation}/messages', [ChatController::class, 'adminReply']);
+    Route::post('chat/conversations/{conversation}/read', [ChatController::class, 'adminMarkRead']);
 });
