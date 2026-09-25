@@ -4,5 +4,6 @@
     "Booking": true,
     "Content": true,
     "Payment": true,
-    "Support": true
+    "Support": true,
+    "Leads": true
 }

@@ -45,7 +45,10 @@
             "Modules\\Service\\Database\\Seeders\\": "Modules/Service/database/seeders/",
             "Modules\\Support\\": "Modules/Support/app/",
             "Modules\\Support\\Database\\Factories\\": "Modules/Support/database/factories/",
-            "Modules\\Support\\Database\\Seeders\\": "Modules/Support/database/seeders/"
+            "Modules\\Support\\Database\\Seeders\\": "Modules/Support/database/seeders/",
+            "Modules\\Leads\\": "Modules/Leads/app/",
+            "Modules\\Leads\\Database\\Factories\\": "Modules/Leads/database/factories/",
+            "Modules\\Leads\\Database\\Seeders\\": "Modules/Leads/database/seeders/"
         }
     },
     "autoload-dev": {
