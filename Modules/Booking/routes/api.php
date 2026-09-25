@@ -11,4 +11,5 @@ Route::post('bookings', [BookingController::class, 'store']);
 Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
     Route::get('bookings', [BookingController::class, 'index']);
     Route::patch('bookings/{booking}/status', [BookingController::class, 'updateStatus']);
+    Route::delete('bookings/{booking}', [BookingController::class, 'destroy']);
 });

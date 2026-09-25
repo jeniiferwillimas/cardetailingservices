@@ -77,4 +77,69 @@ class LeadController extends Controller
 
         return response()->json($res);
     }
+
+    /**
+     * Admin: update a lead's contact details.
+     */
+    public function update(Request $request, Lead $lead): JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'name' => ['nullable', 'string', 'max:255'],
+                'email' => ['required', 'email', 'max:255'],
+                'phone' => ['nullable', 'string', 'max:50'],
+            ]);
+
+            $lead->update($validated);
+
+            $res = [
+                'success' => true,
+                'data' => new LeadResource($lead),
+            ];
+        } catch (Exception $e) {
+            $res = [
+                'success' => false,
+                'message' => $e->getMessage(),
+                'getFile' => $e->getFile(),
+                'getLine' => $e->getLine(),
+            ];
+        } catch (\Throwable $t) {
+            $res = [
+                'success' => false,
+                'message' => $t->getMessage(),
+                'getFile' => $t->getFile(),
+                'getLine' => $t->getLine(),
+            ];
+        }
+
+        return response()->json($res);
+    }
+
+    /**
+     * Admin: delete a lead.
+     */
+    public function destroy(Lead $lead): JsonResponse
+    {
+        try {
+            $lead->delete();
+
+            $res = ['success' => true];
+        } catch (Exception $e) {
+            $res = [
+                'success' => false,
+                'message' => $e->getMessage(),
+                'getFile' => $e->getFile(),
+                'getLine' => $e->getLine(),
+            ];
+        } catch (\Throwable $t) {
+            $res = [
+                'success' => false,
+                'message' => $t->getMessage(),
+                'getFile' => $t->getFile(),
+                'getLine' => $t->getLine(),
+            ];
+        }
+
+        return response()->json($res);
+    }
 }
