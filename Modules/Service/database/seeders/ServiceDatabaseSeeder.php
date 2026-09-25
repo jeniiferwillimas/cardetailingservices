@@ -17,7 +17,7 @@ class ServiceDatabaseSeeder extends Seeder
                 'slug' => 'interior-deluxe',
                 'name' => 'Interior Deluxe',
                 'description' => "Restore your car's interior to its former glory with the Interior Deluxe package. This service focuses on a thorough cleaning and rejuvenation of your car's inside. We'll tackle dirt and grime in every crevice, including cup holders, side panels, and seats. Leather cleaning and UV protection for vinyl surfaces ensure a clean and conditioned interior. This package also includes odor removal to leave your cabin freshened and refreshed.",
-                'price' => 199.99,
+                'price' => 100,
                 'duration_min' => 90,
                 'image_url' => 'https://images.unsplash.com/photo-1601362840469-51e4d8d58785?q=80&w=1200&auto=format&fit=crop',
                 'features' => [
@@ -31,7 +31,7 @@ class ServiceDatabaseSeeder extends Seeder
                 'slug' => 'ultimate-package',
                 'name' => 'Ultimate Package',
                 'description' => "This comprehensive package delivers a deep clean and protection for both your car's interior and exterior. Enjoy a sparkling exterior with a pressure wash, hand wax, and UV-protected tire dressing. Inside, we'll tackle dirt and grime in every nook and cranny, including leather cleaning and streak-free window cleaning.",
-                'price' => 199.99,
+                'price' => 100,
                 'duration_min' => 120,
                 'image_url' => 'https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?q=80&w=1200&auto=format&fit=crop',
                 'features' => [
@@ -43,7 +43,7 @@ class ServiceDatabaseSeeder extends Seeder
                 'slug' => 'super-shine-package',
                 'name' => 'Super Shine Package',
                 'description' => "Take your car's shine to the next level with the Super Shine Package. Our detailers perform a premium hand wash, clay bar treatment to strip embedded contaminants, and a long-lasting wax finish that leaves your paint looking glossy, smooth, and protected against the elements.",
-                'price' => 299.99,
+                'price' => 200,
                 'duration_min' => 150,
                 'image_url' => 'https://images.unsplash.com/photo-1600661653561-629509216228?q=80&w=1200&auto=format&fit=crop',
                 'features' => [
@@ -56,7 +56,7 @@ class ServiceDatabaseSeeder extends Seeder
                 'slug' => 'showroom-detail',
                 'name' => 'Showroom Detail',
                 'description' => 'Experience the ultimate in car care with the Showroom Detail. This full-service package combines deep interior cleaning, exterior paint correction, and a premium finish to bring your vehicle back to showroom-quality condition, inside and out.',
-                'price' => 399.99,
+                'price' => 300,
                 'duration_min' => 180,
                 'image_url' => 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=1200&auto=format&fit=crop',
                 'features' => [
@@ -69,7 +69,7 @@ class ServiceDatabaseSeeder extends Seeder
                 'slug' => 'ceramic-package',
                 'name' => '5 Year Ceramic Package',
                 'description' => 'Invest in the ultimate protection for your car with the 5 Year Ceramic Package. Our professional-grade ceramic coating bonds to your paint to guard against UV damage, oxidation, and minor scratches, keeping your vehicle glossy and protected for years to come.',
-                'price' => 999.99,
+                'price' => 800,
                 'duration_min' => 240,
                 'image_url' => 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?q=80&w=1200&auto=format&fit=crop',
                 'features' => [
