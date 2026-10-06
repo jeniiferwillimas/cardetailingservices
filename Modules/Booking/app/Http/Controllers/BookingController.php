@@ -8,8 +8,10 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Modules\Booking\Mail\BookingConfirmationMail;
 use Modules\Booking\Models\Booking;
 use Modules\Booking\Transformers\BookingResource;
 use Modules\Service\Models\Service;
@@ -53,6 +55,20 @@ class BookingController extends Controller
 
             $orderReference = (string) Str::uuid();
 
+            $total = 0;
+            $serviceLines = [];
+
+            foreach ($validated['items'] as $item) {
+                $service = $services->get($item['service_id']);
+                $qty = $item['quantity'];
+                $serviceLines[] = [
+                    'name' => $service->name,
+                    'price' => (float) $service->price,
+                    'quantity' => $qty,
+                ];
+                $total += $service->price * $qty;
+            }
+
             DB::transaction(function () use ($validated, $services, $orderReference) {
                 foreach ($validated['items'] as $item) {
                     $service = $services->get($item['service_id']);
@@ -73,6 +89,17 @@ class BookingController extends Controller
                     }
                 }
             });
+
+            Mail::to($validated['customer_email'])->send(new BookingConfirmationMail(
+                customerName: $validated['customer_name'],
+                orderReference: $orderReference,
+                scheduledFor: $validated['scheduled_for'],
+                address: $validated['address'],
+                state: $validated['state'],
+                vehicleInfo: $validated['vehicle_info'] ?? null,
+                serviceLines: $serviceLines,
+                total: $total,
+            ));
 
             $res = [
                 'success' => true,
