@@ -236,6 +236,49 @@ class PaymentController extends Controller
     }
 
     /**
+     * Simple crypto invoice — just takes an amount, creates a NOWPayments
+     * invoice and returns the hosted checkout URL. Same pattern as Sky Play.
+     */
+    public function createInvoice(Request $request): JsonResponse
+    {
+        $request->validate([
+            'amount' => ['required', 'numeric', 'min:25', 'max:10000'],
+        ]);
+
+        if (! $this->nowPayments->isConfigured()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Crypto payment is not configured yet.',
+            ], 503);
+        }
+
+        try {
+            $orderId = 'PAY-' . strtoupper(Str::random(8));
+            $amount = (float) $request->input('amount');
+
+            $response = $this->nowPayments->createInvoice(
+                $orderId,
+                $amount,
+                "Service payment {$orderId}"
+            );
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'invoiceUrl' => $response['invoice_url'] ?? null,
+                    'orderId' => $orderId,
+                    'amount' => $amount,
+                ],
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
      * NOWPayments IPN webhook: verifies the signature, then marks the
      * payment (and its bookings) paid once the payment is finished/confirmed.
      */
