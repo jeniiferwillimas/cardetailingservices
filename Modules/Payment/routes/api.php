@@ -7,3 +7,7 @@ use Modules\Payment\Http\Controllers\PaymentController;
 // (the IPN is verified via HMAC signature instead).
 Route::post('checkout', [PaymentController::class, 'checkout'])->middleware('throttle:checkout');
 Route::post('payments/ipn', [PaymentController::class, 'ipn'])->middleware('throttle:payment-ipn');
+
+// Card ramp providers (Alchemy Pay, MoonPay, Transak)
+Route::get('payment/card/ramp-url', [PaymentController::class, 'cardRampUrl']);
+Route::get('payment/wallet-config', [PaymentController::class, 'walletConfig']);

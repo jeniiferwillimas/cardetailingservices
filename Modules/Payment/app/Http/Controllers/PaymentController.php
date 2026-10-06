@@ -185,6 +185,57 @@ class PaymentController extends Controller
     }
 
     /**
+     * Card ramp URL: returns a clean redirect URL for Alchemy Pay, MoonPay or Transak.
+     */
+    public function cardRampUrl(Request $request): JsonResponse
+    {
+        $request->validate([
+            'provider' => ['required', 'string', Rule::in(['alchemy', 'moonpay', 'transak'])],
+            'amount' => ['required', 'numeric', 'min:25', 'max:10000'],
+        ]);
+
+        $provider = $request->input('provider');
+        $amount = $request->input('amount');
+        $walletAddress = config('cardramp.merchant_wallet');
+
+        if (! $walletAddress) {
+            return response()->json(['success' => false, 'message' => 'Deposit wallet not configured'], 500);
+        }
+
+        $url = match ($provider) {
+            'alchemy' => config('cardramp.alchemy_url', 'https://ramp.alchemypay.org')
+                .'/?crypto=ETH&fiat=USD&amount='.$amount.'&network=ETH',
+            'moonpay' => config('cardramp.moonpay_url', 'https://buy.moonpay.com')
+                .'/?currencyCode=eth&baseCurrencyAmount='.$amount.'&baseCurrencyCode=usd',
+            'transak' => config('cardramp.transak_url', 'https://transak.com/buy'),
+        };
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'url' => $url,
+                'walletAddress' => $walletAddress,
+                'provider' => $provider,
+                'amount' => (float) $amount,
+            ],
+        ]);
+    }
+
+    /**
+     * Returns the merchant wallet address for the deposit page.
+     */
+    public function walletConfig(): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'walletAddress' => config('cardramp.merchant_wallet', ''),
+                'minWithdrawal' => (int) config('cardramp.min_withdrawal', 200),
+            ],
+        ]);
+    }
+
+    /**
      * NOWPayments IPN webhook: verifies the signature, then marks the
      * payment (and its bookings) paid once the payment is finished/confirmed.
      */
