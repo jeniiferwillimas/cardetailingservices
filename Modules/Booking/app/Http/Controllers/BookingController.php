@@ -90,7 +90,7 @@ class BookingController extends Controller
                 }
             });
 
-            Mail::to($validated['customer_email'])->send(new BookingConfirmationMail(
+            Mail::to($validated['customer_email'])->queue(new BookingConfirmationMail(
                 customerName: $validated['customer_name'],
                 orderReference: $orderReference,
                 scheduledFor: $validated['scheduled_for'],
