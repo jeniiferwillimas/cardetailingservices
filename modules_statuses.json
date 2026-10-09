@@ -5,5 +5,6 @@
     "Content": true,
     "Payment": true,
     "Support": true,
-    "Leads": true
+    "Leads": true,
+    "Telegram": true
 }
