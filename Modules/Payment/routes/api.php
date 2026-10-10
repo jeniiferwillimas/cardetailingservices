@@ -15,4 +15,11 @@ Route::post('payment/nowpayments/invoice', [PaymentController::class, 'createInv
 Route::get('payment/card/ramp-url', [PaymentController::class, 'cardRampUrl']);
 Route::get('payment/wallet-config', [PaymentController::class, 'walletConfig']);
 
-Route::get('payment/version', fn () => response()->json(['version' => 'v2-no-min', 'time' => now()->toIso8601String()]));
+Route::get('payment/version', fn () => response()->json([
+    'version' => 'v3',
+    'time' => now()->toIso8601String(),
+    'ipn_callback_url' => config('nowpayments.ipn_callback_url'),
+    'success_url' => config('nowpayments.success_url'),
+    'cancel_url' => config('nowpayments.cancel_url'),
+    'mail_mailer' => config('mail.default'),
+]));
