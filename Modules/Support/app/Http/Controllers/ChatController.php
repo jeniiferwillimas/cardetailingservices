@@ -128,12 +128,16 @@ class ChatController extends Controller
 
             $notifyEmail = config('support.notify_email');
             if ($notifyEmail) {
-                Mail::to($notifyEmail)->send(new NewChatMessageMail(
-                    customerName: $conversation->customer_name,
-                    customerEmail: $conversation->customer_email,
-                    messageBody: $validated['body'],
-                    conversationUuid: $conversation->uuid,
-                ));
+                try {
+                    Mail::to($notifyEmail)->send(new NewChatMessageMail(
+                        customerName: $conversation->customer_name,
+                        customerEmail: $conversation->customer_email,
+                        messageBody: $validated['body'],
+                        conversationUuid: $conversation->uuid,
+                    ));
+                } catch (\Throwable $mailError) {
+                    Log::warning('Chat email notification failed: '.$mailError->getMessage());
+                }
             }
 
             $res = [
