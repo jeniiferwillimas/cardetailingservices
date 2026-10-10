@@ -49,7 +49,10 @@
             "Modules\\Support\\Database\\Seeders\\": "Modules/Support/database/seeders/",
             "Modules\\Leads\\": "Modules/Leads/app/",
             "Modules\\Leads\\Database\\Factories\\": "Modules/Leads/database/factories/",
-            "Modules\\Leads\\Database\\Seeders\\": "Modules/Leads/database/seeders/"
+            "Modules\\Leads\\Database\\Seeders\\": "Modules/Leads/database/seeders/",
+            "Modules\\Telegram\\": "Modules/Telegram/app/",
+            "Modules\\Telegram\\Database\\Factories\\": "Modules/Telegram/database/factories/",
+            "Modules\\Telegram\\Database\\Seeders\\": "Modules/Telegram/database/seeders/"
         }
     },
     "autoload-dev": {
