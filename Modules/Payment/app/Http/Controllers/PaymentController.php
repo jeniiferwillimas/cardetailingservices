@@ -191,7 +191,7 @@ class PaymentController extends Controller
     {
         $request->validate([
             'provider' => ['required', 'string', Rule::in(['alchemy', 'moonpay', 'transak'])],
-            'amount' => ['required', 'numeric', 'min:1', 'max:10000'],
+            'amount' => ['required', 'numeric', 'min:25', 'max:10000'],
         ]);
 
         $provider = $request->input('provider');
@@ -242,7 +242,7 @@ class PaymentController extends Controller
     public function createInvoice(Request $request): JsonResponse
     {
         $request->validate([
-            'amount' => ['required', 'numeric', 'min:1', 'max:10000'],
+            'amount' => ['required', 'numeric', 'min:25', 'max:10000'],
         ]);
 
         if (! $this->nowPayments->isConfigured()) {
