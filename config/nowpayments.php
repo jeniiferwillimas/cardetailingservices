@@ -22,6 +22,8 @@ return [
 
     'price_currency' => env('NOWPAYMENTS_PRICE_CURRENCY', 'usd'),
 
+    'pay_currency' => env('NOWPAYMENTS_PAY_CURRENCY', 'usdttrc20'),
+
     'success_url' => env('NOWPAYMENTS_SUCCESS_URL', env('FRONTEND_URL', 'http://localhost:3000').'/booking/success'),
 
     'cancel_url' => env('NOWPAYMENTS_CANCEL_URL', env('FRONTEND_URL', 'http://localhost:3000').'/booking/cancelled'),
