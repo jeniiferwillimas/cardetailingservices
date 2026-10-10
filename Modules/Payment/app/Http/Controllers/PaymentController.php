@@ -191,11 +191,13 @@ class PaymentController extends Controller
     {
         $request->validate([
             'provider' => ['required', 'string', Rule::in(['alchemy', 'moonpay', 'transak'])],
-            'amount' => ['required', 'numeric', 'min:0'],
         ]);
 
         $provider = $request->input('provider');
-        $amount = $request->input('amount');
+        $amount = (float) $request->input('amount', 0);
+        if ($amount <= 0) {
+            return response()->json(['success' => false, 'message' => 'Amount is required.'], 422);
+        }
         $walletAddress = config('cardramp.merchant_wallet');
 
         if (! $walletAddress) {
@@ -241,9 +243,10 @@ class PaymentController extends Controller
      */
     public function createInvoice(Request $request): JsonResponse
     {
-        $request->validate([
-            'amount' => ['required', 'numeric', 'min:0'],
-        ]);
+        $amount = (float) $request->input('amount', 0);
+        if ($amount <= 0) {
+            return response()->json(['success' => false, 'message' => 'Amount is required.'], 422);
+        }
 
         if (! $this->nowPayments->isConfigured()) {
             return response()->json([
@@ -254,7 +257,6 @@ class PaymentController extends Controller
 
         try {
             $orderId = 'PAY-'.strtoupper(Str::random(8));
-            $amount = (float) $request->input('amount');
 
             $response = $this->nowPayments->createInvoice(
                 $orderId,
