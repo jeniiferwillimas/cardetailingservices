@@ -216,19 +216,28 @@ class ServiceController extends Controller
                 'success' => true,
                 'data' => null,
             ];
+        } catch (\Illuminate\Database\QueryException $e) {
+            if (str_contains($e->getMessage(), 'foreign key constraint')) {
+                $res = [
+                    'success' => false,
+                    'message' => 'This service cannot be deleted because it has bookings linked to it. Deactivate it instead.',
+                ];
+
+                return response()->json($res, 409);
+            }
+            $res = [
+                'success' => false,
+                'message' => $e->getMessage(),
+            ];
         } catch (Exception $e) {
             $res = [
                 'success' => false,
                 'message' => $e->getMessage(),
-                'getFile' => $e->getFile(),
-                'getLine' => $e->getLine(),
             ];
         } catch (\Throwable $t) {
             $res = [
                 'success' => false,
                 'message' => $t->getMessage(),
-                'getFile' => $t->getFile(),
-                'getLine' => $t->getLine(),
             ];
         }
 
