@@ -150,6 +150,7 @@ class TelegramBotService
             $data === 'wallet' => $this->sendWalletAddress($chatId),
             $data === 'contact' => $this->sendContact($chatId),
             str_starts_with($data, 'amount_') => $this->handleQuickAmount($chatId, $data),
+            str_starts_with($data, 'svc_') => $this->handleServicePayment($chatId, $data),
             default => $this->sendFallback($chatId),
         };
     }
@@ -201,29 +202,36 @@ class TelegramBotService
 
     private function sendCryptoPayment(int $chatId): void
     {
+        $services = Service::where('is_active', true)->orderBy('price')->get();
+
         $text = "🪙 **Crypto Payment (USDT TRC-20)**\n\n";
         $text .= "Here's how it works:\n\n";
-        $text .= "1️⃣ Tell me the amount in USD you'd like to pay\n";
+        $text .= "1️⃣ Pick a service below or type a custom amount\n";
         $text .= "2️⃣ I'll generate a payment link for you\n";
         $text .= "3️⃣ Complete the payment on the secure checkout page\n";
         $text .= "4️⃣ You'll get a confirmation once we receive it\n\n";
-        $text .= 'Pick a quick amount or type your own:';
 
-        $keyboard = [
-            [
-                ['text' => '$50', 'callback_data' => 'amount_50'],
-                ['text' => '$100', 'callback_data' => 'amount_100'],
-                ['text' => '$150', 'callback_data' => 'amount_150'],
-            ],
-            [
-                ['text' => '$200', 'callback_data' => 'amount_200'],
-                ['text' => '$300', 'callback_data' => 'amount_300'],
-                ['text' => '$500', 'callback_data' => 'amount_500'],
-            ],
-            [
+        if ($services->isNotEmpty()) {
+            $text .= '👇 Select a service to pay for:';
+
+            $keyboard = [];
+            foreach ($services as $service) {
+                $price = number_format((float) $service->price, 2);
+                $keyboard[] = [
+                    ['text' => "{$service->name} — \${$price}", 'callback_data' => "svc_{$service->id}"],
+                ];
+            }
+            $keyboard[] = [
                 ['text' => '⬅️ Back', 'callback_data' => 'pay_menu'],
-            ],
-        ];
+            ];
+        } else {
+            $text .= 'Type the amount in USD you\'d like to pay:';
+            $keyboard = [
+                [
+                    ['text' => '⬅️ Back', 'callback_data' => 'pay_menu'],
+                ],
+            ];
+        }
 
         $this->sendMessage($chatId, $text, $keyboard);
     }
@@ -270,16 +278,32 @@ class TelegramBotService
         $this->sendMessage($chatId, $followUp, $keyboard);
     }
 
+    private function handleServicePayment(int $chatId, string $data): void
+    {
+        $serviceId = (int) str_replace('svc_', '', $data);
+        $service = Service::find($serviceId);
+
+        if (! $service || ! $service->is_active) {
+            $this->sendText($chatId, '❌ This service is no longer available. Type /services to see current options.');
+
+            return;
+        }
+
+        $this->handleAmountReceived($chatId, (float) $service->price, $service->name);
+    }
+
     private function handleQuickAmount(int $chatId, string $data): void
     {
         $amount = (float) str_replace('amount_', '', $data);
         $this->handleAmountReceived($chatId, $amount);
     }
 
-    private function handleAmountReceived(int $chatId, float $amount): void
+    private function handleAmountReceived(int $chatId, float $amount, ?string $serviceName = null): void
     {
-        if ($amount < 3) {
-            $this->sendText($chatId, '⚠️ Minimum payment amount is $3. Please enter a higher amount.');
+        $minPrice = (float) (Service::where('is_active', true)->min('price') ?? 3);
+
+        if ($amount < $minPrice) {
+            $this->sendText($chatId, '⚠️ Minimum payment amount is $'.number_format($minPrice, 2).'. Please select a service or enter a valid amount.');
 
             return;
         }
@@ -302,7 +326,10 @@ class TelegramBotService
             }
 
             $orderId = 'TG-'.strtoupper(Str::random(8));
-            $response = $nowPayments->createInvoice($orderId, $amount, "Telegram payment {$orderId}");
+            $description = $serviceName
+                ? "{$serviceName} — {$orderId}"
+                : "Telegram payment {$orderId}";
+            $response = $nowPayments->createInvoice($orderId, $amount, $description);
             $invoiceUrl = $response['invoice_url'] ?? null;
 
             if ($invoiceUrl) {
