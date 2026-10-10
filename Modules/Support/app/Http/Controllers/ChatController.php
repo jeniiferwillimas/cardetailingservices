@@ -9,6 +9,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Modules\Support\Events\MessageDeleted;
 use Modules\Support\Events\MessageSent;
@@ -127,14 +128,19 @@ class ChatController extends Controller
             $this->safeBroadcast(new MessageSent($message));
 
             $notifyEmail = config('support.notify_email');
-            if ($notifyEmail) {
+            $resendKey = config('resend.api_key');
+            if ($notifyEmail && $resendKey) {
                 try {
-                    Mail::to($notifyEmail)->send(new NewChatMessageMail(
-                        customerName: $conversation->customer_name,
-                        customerEmail: $conversation->customer_email,
-                        messageBody: $validated['body'],
-                        conversationUuid: $conversation->uuid,
-                    ));
+                    $from = $conversation->customer_name ?? $conversation->customer_email ?? 'A visitor';
+                    Http::timeout(10)->withToken($resendKey)->post('https://api.resend.com/emails', [
+                        'from' => config('mail.from.name', 'Elite Car Detailing').' <'.config('mail.from.address', 'onboarding@resend.dev').'>',
+                        'to' => [$notifyEmail],
+                        'subject' => "New Chat Message from {$from}",
+                        'html' => "<h2>New message from {$from}</h2>"
+                            ."<p><strong>Email:</strong> ".($conversation->customer_email ?? 'N/A')."</p>"
+                            ."<p><strong>Message:</strong></p><blockquote>{$validated['body']}</blockquote>"
+                            ."<p><a href=\"".config('app.frontend_url', config('app.url'))."/admin/chat\">Reply in Dashboard</a></p>",
+                    ]);
                 } catch (\Throwable $mailError) {
                     Log::warning('Chat email notification failed: '.$mailError->getMessage());
                 }
