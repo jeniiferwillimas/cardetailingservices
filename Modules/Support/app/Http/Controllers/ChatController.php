@@ -9,9 +9,11 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Modules\Support\Events\MessageDeleted;
 use Modules\Support\Events\MessageSent;
 use Modules\Support\Events\MessageUpdated;
+use Modules\Support\Mail\NewChatMessageMail;
 use Modules\Support\Models\Conversation;
 use Modules\Support\Models\Message;
 use Modules\Support\Transformers\ConversationResource;
@@ -123,6 +125,16 @@ class ChatController extends Controller
             $conversation->update(['last_message_at' => now()]);
 
             $this->safeBroadcast(new MessageSent($message));
+
+            $notifyEmail = config('support.notify_email');
+            if ($notifyEmail) {
+                Mail::to($notifyEmail)->queue(new NewChatMessageMail(
+                    customerName: $conversation->customer_name,
+                    customerEmail: $conversation->customer_email,
+                    messageBody: $validated['body'],
+                    conversationUuid: $conversation->uuid,
+                ));
+            }
 
             $res = [
                 'success' => true,
