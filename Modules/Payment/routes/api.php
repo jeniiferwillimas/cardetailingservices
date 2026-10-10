@@ -14,3 +14,5 @@ Route::post('payment/nowpayments/invoice', [PaymentController::class, 'createInv
 // Card ramp providers (Alchemy Pay, MoonPay, Transak)
 Route::get('payment/card/ramp-url', [PaymentController::class, 'cardRampUrl']);
 Route::get('payment/wallet-config', [PaymentController::class, 'walletConfig']);
+
+Route::get('payment/version', fn () => response()->json(['version' => 'v2-no-min', 'time' => now()->toIso8601String()]));
