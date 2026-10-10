@@ -29,7 +29,6 @@ class NowPaymentsClient
         ])->post(config('nowpayments.base_url').'/invoice', [
             'price_amount' => $amount,
             'price_currency' => config('nowpayments.price_currency'),
-            'pay_currency' => config('nowpayments.pay_currency', 'usdttrc20'),
             'order_id' => $orderReference,
             'order_description' => $description,
             'ipn_callback_url' => config('nowpayments.ipn_callback_url'),
