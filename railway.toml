@@ -1,0 +1,5 @@
+[build]
+buildCommand = "php artisan optimize:clear"
+
+[deploy]
+startCommand = "php artisan optimize:clear && php artisan migrate --force && php artisan optimize && frankenphp run --config /Caddyfile"
